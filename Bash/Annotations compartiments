@@ -1,0 +1,218 @@
+###How to filtre merge documents
+```{r cars}
+###On the fly generating merged file for parsing
+
+@geeserv02:~/Trabajo/seXYevol/PM_methylation$ cat merger.sh
+
+grep -f <(awk -F "_" '!s[$1]++{print $1}' /home/ricardo/Trabajo/seXYevol/PM_methylation/coord4parsing_v2.txt) <(ls -1 /home/ricardo/Trabajo/IT_IR/MicVault_2206/*gff3) | paste -s -d " " | awk '{print "cat "$0}' | bash
+
+###Long (enough) TE for parsing
+#TEs are considered long enough to be exposed to the RIP process from 300 base pairs. 
+
+@geeserv02:~/Trabajo/seXYevol/PM_methylation$ awk -F "_" '!s[$1]++{print $1}' coord4parsing_v2.txt | grep -f - ../../IT_IR/MicVault_2206/all_53G_TEs.gff3 | sed 's/_/\t/1' | cut -f2- | awk '$5-$4>298' | sort -k1,1 -k4,4n -o PMset_longMicroTEp.gff3
+```
+
+###Annotation and intersection summary
+```{r cars}
+@geeserv02:~/Trabajo/seXYevol/PM_methylation$ awk '$3=="gene"{split($1,s,"_"); c[s[1]]++}END{for(i in c) print i,c[i]}' <(./merger.sh) | sed '1iAAspe gALL' | sort | join -j1 - <(awk '/NRR|PAR/ && !s[$1]++{print $1}' coord4parsing_v2.txt | grep -f - <(./merger.sh) | awk '$3=="gene"{split($1,s,"_"); c[s[1]]++}END{for(i in c) print i,c[i]}' | sed '1iAAspe gMAT' | sort) | join -j1 - <(awk -F "_" '{c[$1]++}END{for(i in c) print i,c[i]}' PMset_longMicroTEp.gff3 | sed '1iAAspe tALL' | sort) | join -j1 - <(awk '/NRR|PAR/ && !s[$1]++{print $1}' coord4parsing_v2.txt | grep -f - PMset_longMicroTEp.gff3 | awk -F "_" '{c[$1]++}END{for(i in c) print i,c[i]}' | sed '1iAAspe tMAT' | sort)  | join -j1 - <(bedtools intersect -a <(awk '$3=="gene"' <(./merger.sh)) -b PMset_longMicroTEp.gff3 -wo | awk '$NF>=100 && !s[$1$4$5]++{split($1,g,"_"); c[g[1]]++}END{for(i in c) print i,c[i]}' | sed '1iAAspe nALL' | sort) | join -j1 - <(bedtools intersect -a <(awk '$3=="gene"' <(./merger.sh)) -b PMset_longMicroTEp.gff3 -wo | grep -f <(awk '/NRR|PAR/ && !s[$1]++{print $1}' coord4parsing_v2.txt) - | awk '$NF>=100 && !s[$1$4$5]++{split($1,g,"_"); c[g[1]]++}END{for(i in c) print i,c[i]}' | sed '1iAAspe nMAT' | sort) > annotANDintersect_summary4PM
+
+          #Mind that I am counting only intersections at least 100 bp long***
+
+##Visualisation of compartiment ( MAT vs ALL)
+
+      $ column -t annotANDintersect_summary4PM
+
+    AAspe              gALL   gMAT  tALL  tMAT  nALL  nMAT
+
+    MvCa-1250-A1-R1    10695  990   2345  435   1648  324
+
+    MvKn-1118-A1-R2    8007   388   789   51    566   40
+
+    MvSilpar-01510-A1  10156  1018  1783  471   1298  335
+
+    MvSl-1064-A1-R4    12266  1517  2653  655   2191  558
+
+    MvSl-1064-A2-R4    12516  1830  2742  804   2231  659
+
+    MvSp-1252-A1-R1    15486  4333  6492  2234  3948  1883
+
+    MvSv-1253-A1-R1    9532   1202  1519  275   769   160
+
+    MviSta-1400-A1     8920   582   1041  217   749   139
+
+    ###Fisher's test render all nMAT/gMAT vs nALL/gALL comparisons significant 
+
+    ###Fold enrichment range 1.46 to 2.84; p-value range 0.037 to 2.165148e-57
+```
+
+####Details of annotation
+```{r pressure}
+
+#Adding genes fully contained in TE (gINt) and TE fully contained in genes (tINg), monster call alert
+
+@geeserv02:~/Trabajo/seXYevol/PM_methylation$ bedtools intersect -a <(awk '$3=="gene"' <(./merger.sh)) -b PMset_longMicroTEp.gff3 -wo | awk '$NF>=100 && $13>=$4 && $14<=$5 && !s[$1$4$5]++{split($1,g,"_"); c[g[1]]++}END{for(i in c) print i,c[i]}' | sort | join -j1 - <(bedtools intersect -a <(awk '$3=="gene"' <(./merger.sh)) -b PMset_longMicroTEp.gff3 -wo | grep -f <(awk '/NRR|PAR/ && !s[$1]++{print $1}' coord4parsing_v2.txt) - | awk '$NF>=100 && $13>=$4 && $14<=$5 && !s[$1$4$5]++{split($1,g,"_"); c[g[1]]++}END{for(i in c) print i,c[i]}' | sort) | join -j1 - <(bedtools intersect -a <(awk '$3=="gene"' <(./merger.sh)) -b PMset_longMicroTEp.gff3 -wo | awk '$NF>=100 && $13<$4 && $14>$5 && !s[$1$4$5]++{split($1,g,"_"); c[g[1]]++}END{for(i in c) print i,c[i]}' | sort | join -j1 - <(bedtools intersect -a <(awk '$3=="gene"' <(./merger.sh)) -b PMset_longMicroTEp.gff3 -wo | grep -f <(awk '/NRR|PAR/ && !s[$1]++{print $1}' coord4parsing_v2.txt) - | awk '$NF>=100 && $13<$4 && $14>$5 && !s[$1$4$5]++{split($1,g,"_"); c[g[1]]++}END{for(i in c) print i,c[i]}' | sort)) | sed '1iAAspe tINgALL tINgMAT gINtALL gINtMAT' | join -j1 annotANDintersect_summary4PM - | sort -o annotANDintersect_summary4PM
+
+##Visualisation of compartiment ( MAT vs ALL)
+
+      $ sed '1i1 2 3 4 5 6 7 8 9 10 11' annotANDintersect_summary4PM | column -t
+
+    1                  2      3     4     5     6     7     8        9        10       11
+
+    AAspe              gALL   gMAT  tALL  tMAT  nALL  nMAT  tINgALL  tINgMAT  gINtALL  gINtMAT
+
+    MvCa-1250-A1-R1    10695  990   2345  435   1648  324   447      99       581      99
+
+    MvKn-1118-A1-R2    8007   388   789   51    566   40    168      12       186      15
+
+    MvSilpar-01510-A1  10156  1018  1783  471   1298  335   346      91       442      108
+
+    MvSl-1064-A1-R4    12266  1517  2653  655   2191  558   551      147      767      196
+
+    MvSl-1064-A2-R4    12516  1830  2742  804   2231  659   562      185      765      216
+
+    MvSp-1252-A1-R1    15486  4333  6492  2234  3948  1883  966      385      1439     739
+
+    MvSv-1253-A1-R1    9532   1202  1519  275   769   160   203      41       245      52
+
+    MviSta-1400-A1     8920   582   1041  217   749   139   220      45       280      48
+
+    ###More than half (58 to 68%) of the intersection correspond to gINt or tINg, not obvious entichment in MAT
+    ###Most (70%) predicted TEs overlap a gene feature
+
+    ```{r pressure, echo=FALSE}
+    
+$ awk '{c[$2]++}END{for(i in c) print i,c[i]}' <(cat <(awk '$3=="gene"' <(./merger.sh)) PMset_longMicroTEp.gff3)
+
+        TEannotationMD 19364
+
+        EuGene 87578
+
+          $ bedtools intersect -a PMset_longMicroTEp.gff3 -b <(awk '$3=="gene"' <(./merger.sh)) -wo | awk '{if(!s[$1$4$5]++) t++; \
+
+        if(!s[$1$13$14]++) g++}END{print t,g}' 
+
+        13726 14174
+```
+
+
+        
+###Feature annotation cases
+```{r pressure, echo=FALSE}
+    1. TE is fully contained in gene "tINg": sT > sG & eT < eG
+
+    nnnnnGGGGGGGGGGGGGGGGGGGGnnnnn
+
+    nnnnnEEEEEiiiiEEEEEEEEEEEnnnnn
+
+    nnnnnnnnTTTTTTTTTnnnnnnnnnnnnn
+
+        -> Keep gene and TE, check gene orthology and annotation
+
+    
+
+    2. Short TE-gene overlap "tSOg": (sT > sG & eT > eG) | (sT < sG & eT < eG); overlap < 100 bp
+
+    nnnGGGGGGGGGGGGGGGGnnnnnnnnnnn
+
+    nnnEEEEEEiiiEEEEEEEnnnnnnnnnnn
+
+    nnnnnnnnnnnnnnTTTTTTTTTTTTnnnn
+
+        -> Kepp gene and TE, check gene orthology and annotation
+
+    
+
+    3. Gene is fully contained in TE "gINt": sT < sG & eT > eG
+
+    nnnnnnnnnGGGGGGGGGGGGGnnnnnnnn
+
+    nnnnnnnnnEEEEEiiiEEEEEnnnnnnnn
+
+    nnnnnTTTTTTTTTTTTTTTTTTTTnnnnn
+
+        -> Keep TE, mind that gene is likely a retrotrasponson protein domain and so worth checking Pfam hits and, eventually, orthology
+
+    
+
+    4. Large TE-gene overlap "gLOt": (sT > sG & eT > eG) | (sT < sG & eT < eG); overlap >= 100 bp
+
+    nnnGGGGGGGGGGGGGGGGnnnnnnnnnnn
+
+    nnnEEEEEEiiiEEEEEEEnnnnnnnnnnn
+
+    nnnnnTTTTTTTTTTTTTTTTTTTTTnnnn
+
+        -> Keep TE, mind that gene might have been invaded by the TE and so maybe worth checking gene orthology
+
+    
+
+    5. No TE-gene overlap "gNOt" or "tNOg"
+
+    nnnnnnnnnnnnGGGGGGGGGGGGGGGGnn
+
+    nnnnnnnnnnnnEEEEEEiiiEEEEEEEnn
+
+    nTTTTTTTTTTTnnnnnnnnnnnnnnnnnn  
+
+        -> Keep both
+```
+
+#### Way to call diff features 
+```{r pressure, echo=FALSE}
+###Disjoint features file including either gNOt and tNOg features
+
+@geeserv02:~/Trabajo/seXYevol/PM_methylation$ bedtools intersect -b PMset_longMicroTEp.gff3 -a <(awk '$3=="gene"' <(./merger.sh)) -v | cat  - <(bedtools intersect -a PMset_longMicroTEp.gff3 -b <(awk '$3=="gene"' <(./merger.sh)) -v) | awk '{if(/EuGene/) $10="gNOt"; else $10="tNOg"; print}' OFS="\t" | sort -k1,1 -k4,4n -o PMset_keepeither.gff3
+
+###Keep both features file including tINg and tSOg
+
+@geeserv02:~/Trabajo/seXYevol/PM_methylation$ bedtools intersect -b PMset_longMicroTEp.gff3 -a <(awk '$3=="gene"' <(./merger.sh)) -wo | awk '{if($NF<100) print $0"~tSOg"; else if($13>=$4 && $14<=$5 && $NF>=100) print $0"~tINg"}' | sed 's/\t/~/9;s/\t/~/17' | awk -F "~" '{if(!s[$1]++) print $1"\t"$NF; if(!s[$2]++) print $2"\t"$4}'| sort -k1,1 -k4,4n -o PMset_keepboth.gff3
+
+###Keep TE features file including gINt and gLOt
+
+@geeserv02:~/Trabajo/seXYevol/PM_methylation$ bedtools intersect -a <(awk '$3=="gene"' <(./merger.sh)) -b PMset_longMicroTEp.gff3 -wo | awk '$NF>=100 {if($13<$4 && $14>$5) print $0"~gINt"; else if($13<$4 || $14>$5) print $0"~gLOt"}' OFS="\t" | sed 's/\t/~/9;s/\t/~/17' | awk -F "~" '{if(!s[$1]++) print $1,$NF; if(!s[$2]++) print $2,$NF}' OFS="\t"| grep -v -f <(cut -f1-9 PMset_disjoint.gff3 PMset_keepboth.gff3) - | awk '/TEan/' | sort -k1,1 -k4,4n -o PMset_keepTE.gff3
+
+    ###Notice that the same call can parse the 9513 genes removed due to gINt and gLOt overlaps
+```
+
+```{r pressure, echo=FALSE}
+###Annotate bed file for parsing, shared with PM
+
+@geeserv02:~/Trabajo/seXYevol/PM_methylation$ bedtools subtract -a PMset_length.bed -b <(sort -k1,1 -k4,4n PMset_keep*) | awk '{$4="intg"; print}' OFS="\t" | cat - <(awk '{print $1,$4-1,$5,$NF,$2}' PMset_keep*) | sort -k1,1 -k2,2n | sed 's/ /\t/g' | sed 's/EuGene/Gene/1;s/TEa.\+$/TE/1;/intg/ s/$/\tintergenic/1' > PMset_annot4parsing.bed
+
+    ###Mind that I am substracting one position from the start-of-the-feature for features coming from gff3 files
+
+###Exemple des différents annotations
+@geeserv02:~$ awk '/MvSl-1064-A1-R4_A1/ && !s[$(NF-1)$NF]++' /home/ricardo/Trabajo/seXYevol/PM_methylation/PMset_annot4parsing.bed 
+MvSl-1064-A1-R4_A1	0		453		gNOt	Gene
+MvSl-1064-A1-R4_A1	453		1056	intg	intergenic
+MvSl-1064-A1-R4_A1	2562	6967	tINg	Gene
+MvSl-1064-A1-R4_A1	2641	3925	tINg	TE
+MvSl-1064-A1-R4_A1	37388	37861	gINt	TE
+MvSl-1064-A1-R4_A1	43392	44651	gLOt	TE
+MvSl-1064-A1-R4_A1	214301	214607	tNOg	TE
+MvSl-1064-A1-R4_A1	224545	224905	tSOg	Gene
+MvSl-1064-A1-R4_A1	224866	225300	tSOg	TE
+
+###Dénombrer les différents cas, exemple avec MvSl
+@geeserv02:~$ awk '/MvSl/{split($1,a,"_"); c[a[1]" "$(NF-1)" "$NF]++}END{for(i in c) print i,c[i]}' /home/ricardo/Trabajo/seXYevol/PM_methylation/PMset_annot4parsing.bed | sort | column -t
+MvSl-1064-A1-R4  gINt  TE          314
+MvSl-1064-A1-R4  gLOt  TE          892
+MvSl-1064-A1-R4  gNOt  Gene        9932
+MvSl-1064-A1-R4  intg  intergenic  11660
+MvSl-1064-A1-R4  tINg  Gene        521
+MvSl-1064-A1-R4  tINg  TE          791
+MvSl-1064-A1-R4  tNOg  TE          357
+MvSl-1064-A1-R4  tSOg  Gene        256
+MvSl-1064-A1-R4  tSOg  TE          299
+MvSl-1064-A2-R4  gINt  TE          306
+MvSl-1064-A2-R4  gLOt  TE          923
+MvSl-1064-A2-R4  gNOt  Gene        10142
+MvSl-1064-A2-R4  intg  intergenic  11964
+MvSl-1064-A2-R4  tINg  Gene        532
+MvSl-1064-A2-R4  tINg  TE          800
+MvSl-1064-A2-R4  tNOg  TE          411
+MvSl-1064-A2-R4  tSOg  Gene        261
+MvSl-1064-A2-R4  tSOg  TE          302
+
+
+```
