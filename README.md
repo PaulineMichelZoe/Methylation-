@@ -1,7 +1,5 @@
 # Methylation-
-This document aims to simplify the future processing of bisulfite data in various methylation studies. The main steps in this pipeline are    . 
-
-# genome annotation - Synteny - Ds computation - changepoint analysis - whole genome alignments 
+This document aims to simplify the future processing of bisulfite data in various methylation studies. 
 ====================================================================================
 
    * [Purpose](#purpose)
