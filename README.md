@@ -104,6 +104,53 @@ the config file is here: `./config/config`
 
 This code has been tested with linux. 
 
+# Data localisation 
+
+## Annotated bed for parsing###
+
+### Original files
+```
+
+    - @GEEServ03:/home/marine/data/all_53G_TEs.gff3                 #All predicted TEs in 53 assemblies
+
+    - @geeserv02:/home/ricardo/Trabajo/IT_IR/MicVault_2206/[MR]*gff3        #All gene models in 51 assemblies 
+
+    - @geeserv02:/home/ricardo/Trabajo/seXYevol/PM_methylation/coord4parsing_v2.txt #AUT/PAR/NRR/CEN annotation par contig in PM's genomes 
+
+        AUT = autosome
+
+        CEN = centromere
+
+        NRR = non recombinant region of imputed MAT chromosomes/contigs
+
+        PAR = pseudo autosomal region of imputed MAT chromosomes/contigs
+```
+ 
+## Species already down
+
+### Remind PM's genomes steems
+```
+
+    #Steem assembly         Steeem mC       Species name            Strain  Host
+
+    MvCa-1250-A1-R1     MvS1250A1   M. violaceum s.l.       1250    Silene caroliniana
+
+    MviSta-1400-A1      MvSta1400A1 M. violaceum s.l.       1400    Silene tatarinowii
+
+    MvKn-1118-A1-R2     MsAS573A1   M. scabiosae        1118    Knautia arvensins
+
+    MvSilpar-01510-A1   MvS1510A1   M. violaceum s.l.       1510    Silene parryi
+
+    MvSl-1064-A1-R4     MvSl1064A1  M. lychnidis-dioicae    1064    Silene latifolia
+
+    MvSl-1064-A2-R4     MvSl1064A2  M. lychnidis-dioicae    1064    Silene latifolia
+
+    MvSp-1252-A1-R1     MvSpar1252A1    M. violaceum s.l.       1252    Silene paradoxa
+
+    MvSv-1253-A1-R1     MvSvMlag1253A1  M. lagerheimii      1253    Silene vulgaris
+
+```
+
 
 
 
