@@ -125,16 +125,16 @@ This code has been tested with linux.
 ### Remind PM's genomes steems
 ```
 
-  |     #Steem assembly      |      Steeem mC     |     Species name      |       Strain  Host   | 
+  |     __Steem assembly__      |      __Steeem mC__     |     __Species name__      |       __Strain  Host__   | 
   |:------------------------:|:---------------------------:|:---------------:|:---------------:| 
-  |   MvCa-1250-A1-R1     |   MvS1250A1   |   M. violaceum s.l.     1250    |   Silene caroliniana | 
-  |   MviSta-1400-A1      |   MvSta1400A1   |  M. violaceum s.l.    1400     |  Silene tatarinowii | 
-  |   MvKn-1118-A1-R2     |   MsAS573A1   |   M. scabiosae      1118     |  Knautia arvensins   | 
-  |   MvSilpar-01510-A1    |  MvS1510A1   |   M. violaceum s.l.    1510    |   Silene parryi   | 
-  |   MvSl-1064-A1-R4     |   MvSl1064A1   |  M. lychnidis-dioicae   1064    |   Silene latifolia    | 
-  |   MvSl-1064-A2-R4    |    MvSl1064A2   |  M. lychnidis-dioicae     1064    |   Silene latifolia  | 
-  |  MvSp-1252-A1-R1    |    MvSpar1252A1    |   M. violaceum s.l.      1252    |   Silene paradoxa  | 
-  |  MvSv-1253-A1-R1     |   MvSvMlag1253A1   |  M. lagerheimii     1253    |   Silene vulgaris   | 
+  |   __MvCa-1250-A1-R1__     |   MvS1250A1   |   M. violaceum s.l.     1250    |   Silene caroliniana | 
+  |   __MviSta-1400-A1__      |   MvSta1400A1   |  M. violaceum s.l.    1400     |  Silene tatarinowii | 
+  |   __MvKn-1118-A1-R2__     |   MsAS573A1   |   M. scabiosae      1118     |  Knautia arvensins   | 
+  |   __MvSilpar-01510-A1__    |  MvS1510A1   |   M. violaceum s.l.    1510    |   Silene parryi   | 
+  |   __MvSl-1064-A1-R4__     |   MvSl1064A1   |  M. lychnidis-dioicae   1064    |   Silene latifolia    | 
+  |   __MvSl-1064-A2-R4__    |    MvSl1064A2   |  M. lychnidis-dioicae     1064    |   Silene latifolia  | 
+  |  __MvSp-1252-A1-R1__    |    MvSpar1252A1    |   M. violaceum s.l.      1252    |   Silene paradoxa  | 
+  |  __MvSv-1253-A1-R1__     |   MvSvMlag1253A1   |  M. lagerheimii     1253    |   Silene vulgaris   | 
  
 ```
 
