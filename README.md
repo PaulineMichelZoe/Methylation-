@@ -163,7 +163,7 @@ grep -f <(awk -F "_" '!s[$1]++{print $1}' /home/ricardo/Trabajo/seXYevol/PM_meth
           [Mind that I am counting only intersections at least 100 bp long]
 
 ## Visualisation of compartiment (MAT vs ALL)
-
+```
       $ column -t annotANDintersect_summary4PM
 
     AAspe              gALL   gMAT  tALL  tMAT  nALL  nMAT
