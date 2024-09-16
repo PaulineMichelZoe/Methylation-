@@ -1,0 +1,90 @@
++-----------------------------------------------+
+|      Flowcharte Dnmtools + samtools           |
++------------------------+----------------------+
+                         |
+                         v
+           +-------------------------------+
+           | Extraction du nom de fichier   |
+           | (sans le chemin et les         |
+           | extensions)                    |
+           +-------------------------------+
+                         |
+                         v
+           +-------------------------------+
+           |  Identification du nom d'espèce|
+           +-------------------------------+
+                         |
+                         v
+           +-------------------------------+
+           | Copie des fichiers FASTQ       |
+           | (paired-end) dans le dossier de|
+           | travail (working directory)    |
+           +-------------------------------+
+                         |
+                         v
+           +-------------------------------+
+           | Décompression des fichiers     |
+           | FASTQ (.fq.gz -> .fq)          |
+           +-------------------------------+
+                         |
+                         v
+           +-------------------------------+
+           |  Indexation du génome de       |
+           |  référence                     |
+           |  (abismalidx)   .fa -> .fa.idx |
+           +-------------------------------+
+                         |
+                         v
+           +-------------------------------+
+           | Suppression des amorces sur    |
+           | les reads (TrimGalore)         |
+           +-------------------------------+
+                         |
+                         v
+           +-------------------------------+
+           | Alignement des reads sur le    |
+           | génome de référence (BAM)      |
+           +-------------------------------+
+                         |
+                         v
+           +-------------------------------+
+           | Calcul du taux de méthylation  |
+           | (dnmtools bsrate)              |
+           +-------------------------------+
+                         |
+                         v
+           +-------------------------------+
+           | Tri des fichiers BAM           |
+           | (dnmtools format -> SAM)       |
+           +-------------------------------+
+                         |
+                         v
+           +-------------------------------+
+           | Suppression des reads          |
+           | dupliqués (dnmtools uniq)      |
+           +-------------------------------+
+                         |
+                         v
+           +-------------------------------+
+           | Comptage des niveaux de        |
+           | méthylation (.counts)          |
+           +-------------------------------+
+                         |
+                         v
+           +-------------------------------+
+           | Génération de statistiques     |
+           | sur les niveaux de             |
+           | méthylation (dnmtools levels)  |
+           +-------------------------------+
+                         |
+                         v
+           +-------------------------------+
+           | Suppression des brins          |
+           | symétriques (-) (dnmtools sym) |
+           +-------------------------------+
+                         |
+                         v
+                +-------------------+
+                | Fin du script      |
+                +-------------------+
+
